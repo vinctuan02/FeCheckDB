@@ -1,0 +1,95 @@
+<div className="chuanghira container-display-db">
+    <div className='title'>Info Table</div>
+    <div className='content content-display-db'>
+        <div className="container">
+            <div className="buttons">
+                <button className={displayTable ? '' : 'active' } onClick={toggleDisplay}>Data</button>
+                <button className={displayTable ? 'active' : '' } onClick={toggleDisplay}>Describe</button>
+            </div>
+            <div className="content">
+                {displayTable ? (
+                <div className='container-data'>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {userData.map(user => (
+                            <tr key={user.id}>
+                                <td>{user.id}</td>
+                                <td>{user.name}</td>
+                                <td>{user.age}</td>
+                            </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {userData.map(user => (
+                            <tr key={user.id}>
+                                <td>{user.id}</td>
+                                <td>{user.name}</td>
+                                <td>{user.age}</td>
+                            </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+
+                ) : (
+                <div className='container-describe'>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Column Name</th>
+                                <th>Data Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {describeData.map(column => (
+                            <tr key={column.columnName}>
+                                <td>{column.columnName}</td>
+                                <td>{column.dataType}</td>
+                                <td>{column.description}</td>
+                            </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Column Name</th>
+                                <th>Data Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {describeData.map(column => (
+                            <tr key={column.columnName}>
+                                <td>{column.columnName}</td>
+                                <td>{column.dataType}</td>
+                                <td>{column.description}</td>
+                            </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                )}
+            </div>
+        </div>
+    </div>
+</div>
