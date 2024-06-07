@@ -7,7 +7,7 @@ import TableCompare from '../../Component/TableCompare/TableCompare';
 
 function HomePage() {
 
-    let ipBackEnd = 'localhost'
+    let ipBackEnd = '10.10.12.93'
 
     const [allNameDB, setAllNameDB] = useState()
 
