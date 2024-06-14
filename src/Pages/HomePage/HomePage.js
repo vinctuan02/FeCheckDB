@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 import './styles.scss'; // Đảm bảo rằng file styles.css của bạn đã được import
-// import Table from '../../Component/table/Table';
 import TableCompare from '../../Component/TableCompare/TableCompare';
+import DataTable from '../../Component/Test/TestComponent';
+import Table from '../../Component/Table/Table';
 
-function HomePage() {
+function TestPage() {
 
-    let ipBackEnd = '10.10.12.93'
+    let ipBackEnd = 'localhost'
 
     const [allNameDB, setAllNameDB] = useState()
 
@@ -27,7 +28,7 @@ function HomePage() {
     const [isShowDescribe, setIsShowDescribe] = useState(true)
 
     const [isASC, setIsASC] = useState(true)
-    const [limit, setLimit] = useState(3)
+    const [limit, setLimit] = useState(20)
 
     const toggleASC = () => {
         setIsASC(true)
@@ -326,19 +327,17 @@ function HomePage() {
                                 isShowData &&
                                 <div className='data'>
                                     <div className='table'>
-                                        {/* {inforTable1 &&
-                                        <Table data={inforTable1.dataTable}></Table>
-                                    } */}
-                                        {inforTable1 && inforTable2 &&
-                                            <TableCompare data1={inforTable1.dataTable} data2={inforTable2.dataTable} ></TableCompare>
+                                        {inforTable1 &&
+                                            <div className="custom-data-grid">
+                                                <Table inforTable={inforTable1}></Table>
+                                            </div>
                                         }
                                     </div>
                                     <div className='table'>
-                                        {/* {inforTable2 &&
-                                        <Table data={inforTable2.dataTable}></Table>
-                                    } */}
-                                        {inforTable1 && inforTable2 &&
-                                            <TableCompare data1={inforTable2.dataTable} data2={inforTable1.dataTable} ></TableCompare>
+                                        {inforTable2 &&
+                                            <div className="custom-data-grid">
+                                                <Table inforTable={inforTable2}></Table>
+                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -411,4 +410,4 @@ function HomePage() {
     );
 }
 
-export default HomePage;
+export default TestPage;
