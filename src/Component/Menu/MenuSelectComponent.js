@@ -6,12 +6,14 @@ import './style.css'; // Import CSS file for custom styling
 
 const MenuSelectComponent = ({ id, setSelectTableDB }) => {
 
+    let ipBackEnd = '10.10.12.93'
+
     const [databaseItems, setDatabaseItems] = useState([]);
     const [loadingTables, setLoadingTables] = useState({}); // Track loading state for tables
     const [showTables, setShowTables] = useState(false); // State to control showing tables
 
     useEffect(() => {
-        axios.get('http://localhost:3001/get-all-name-db')
+        axios.get(`http://${ipBackEnd}:3001/get-all-name-db`)
             .then(response => {
                 const dbData = response.data.data;
                 if (Array.isArray(dbData)) {
@@ -60,7 +62,7 @@ const MenuSelectComponent = ({ id, setSelectTableDB }) => {
             [dbKey]: true
         }));
 
-        axios.get('http://localhost:3001/get-all-name-tb-of-db', { params })
+        axios.get(`http://${ipBackEnd}:3001/get-all-name-tb-of-db`, { params })
             .then(response => {
                 const tables = response.data.data;
                 // console.log(`Tables of ${dbName}:`, tables); // Log danh sách các bảng

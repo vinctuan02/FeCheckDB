@@ -7,7 +7,7 @@ import TableCompare from '../../Component/TableCompare/TableCompare';
 
 function TestPage() {
 
-    let ipBackEnd = 'localhost'
+    let ipBackEnd = '10.10.12.93'
 
     const [inforTB1, setInforTB1] = useState()
     const [inforTB2, setInforTB2] = useState()
