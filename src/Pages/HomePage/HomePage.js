@@ -1,234 +1,155 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import './styles.scss'; // Đảm bảo rằng file styles.css của bạn đã được import
+import './styles.scss';
+import MenuSelectComponent from '../../Component/Menu/MenuSelectComponent';
 import TableCompare from '../../Component/TableCompare/TableCompare';
-import DataTable from '../../Component/Test/TestComponent';
-import Table from '../../Component/Table/Table';
 
 function TestPage() {
 
     let ipBackEnd = 'localhost'
 
-    const [allNameDB, setAllNameDB] = useState()
-
-    const [choseDB1, setChoseDB1] = useState()
-    const [choseDB2, setChoseDB2] = useState()
-
-    const [allNameTableOfDB1, setAllNameTableOfDB1] = useState()
-    const [allNameTableOfDB2, setAllNameTableOfDB2] = useState()
-
-    const [choseTableOfDB1, setChoseTableOfDB1] = useState()
-    const [choseTableOfDB2, setChoseTableOfDB2] = useState()
-
-    const [inforTable1, setInforTable1] = useState()
-    const [inforTable2, setInforTable2] = useState()
+    const [inforTB1, setInforTB1] = useState()
+    const [inforTB2, setInforTB2] = useState()
 
     const [isShowData, setIsShowData] = useState(true)
     const [isShowDescribe, setIsShowDescribe] = useState(true)
 
+    const [inforSelect1, setInforSelect1] = useState()
+    const [inforSelect2, setInforSelect2] = useState()
+
     const [isASC, setIsASC] = useState(true)
-    const [limit, setLimit] = useState(20)
+    const [limit, setLimit] = useState(10)
 
-    const toggleASC = () => {
-        setIsASC(true)
-        if ((limit || limit === 0) && choseDB1 && choseTableOfDB1 && choseDB2 && choseTableOfDB2) {
-            let data1 = {
-                nameDB: choseDB1,
-                nameTable: choseTableOfDB1,
-                isASC: true,
-                limit: limit
-            }
-
-            axios.post(`http://${ipBackEnd}:3001/get-infor-a-table`, data1)
-                .then(response => {
-                    setInforTable1(response.data.data)
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-
-
-            let data2 = {
-                nameDB: choseDB2,
-                nameTable: choseTableOfDB2,
-                isASC: true,
-                limit: limit
-            }
-
-            axios.post(`http://${ipBackEnd}:3001/get-infor-a-table`, data2)
-                .then(response => {
-                    setInforTable2(response.data.data)
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-        }
-    };
-
-    const toggleDESC = () => {
-        setIsASC(false)
-
-        if ((limit || limit === 0) && choseDB1 && choseTableOfDB1 && choseDB2 && choseTableOfDB2) {
-            let data1 = {
-                nameDB: choseDB1,
-                nameTable: choseTableOfDB1,
-                isASC: false,
-                limit: limit
-            }
-
-            axios.post(`http://${ipBackEnd}:3001/get-infor-a-table`, data1)
-                .then(response => {
-                    setInforTable1(response.data.data)
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-
-
-            let data2 = {
-                nameDB: choseDB2,
-                nameTable: choseTableOfDB2,
-                isASC: false,
-                limit: limit
-            }
-
-            axios.post(`http://${ipBackEnd}:3001/get-infor-a-table`, data2)
-                .then(response => {
-                    setInforTable2(response.data.data)
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-        }
-    };
-
-    useEffect(() => {
-        axios.get(`http://${ipBackEnd}:3001/get-all-name-db`)
-            .then(response => {
-                setAllNameDB(response.data.data)
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-    }, []);
-
-    const toggleDisplay = (nameTable) => {
-        if (nameTable === 'data') {
+    const toggleDisplay = (nameTB) => {
+        if (nameTB === 'data') {
             setIsShowData(!isShowData)
         }
 
-        if (nameTable === 'describe') {
+        if (nameTB === 'describe') {
             setIsShowDescribe(!isShowDescribe)
         }
     };
 
-    let handleChoseDB = (event, idChose) => {
-        const nameDB = event.target.value
+    const toggleASCDESC = () => {
+        setIsASC(!isASC)
+    }
 
-        if (nameDB !== '') {
-            let data = {
-                nameDB: nameDB
-            }
-
-            if (idChose === 'DB1') {
-                setChoseDB1(nameDB)
-                axios.post(`http://${ipBackEnd}:3001/get-all-name-table-of-db`, data)
-                    .then(response => {
-                        setAllNameTableOfDB1(response.data.data)
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data:', error);
-                    });
-            } else if (idChose === "DB2") {
-                setChoseDB2(nameDB)
-                axios.post(`http://${ipBackEnd}:3001/get-all-name-table-of-db`, data)
-                    .then(response => {
-                        setAllNameTableOfDB2(response.data.data)
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data:', error);
-                    });
-            }
+    const handleOnChangeLimit = (event) => {
+        let value = event.target.value
+        if (0 <= value) {
+            setLimit(value)
         }
     }
 
-    const handleChoseTableOfDB = (event, idChose) => {
-        const nameTable = event.target.value
-        if (idChose === "DB1") {
-            const data = {
-                nameDB: choseDB1,
-                nameTable: nameTable,
-                isASC: true,
-                limit: limit
-            }
+    useEffect(() => {
+        if ((limit || limit === 0) && inforSelect1 && inforSelect2) {
 
-            setChoseTableOfDB1(nameTable)
-            axios.post(`http://${ipBackEnd}:3001/get-infor-a-table`, data)
-                .then(response => {
-                    setInforTable1(response.data.data)
+            inforSelect1.isASC = isASC
+            inforSelect1.limit = limit
+
+            let params = inforSelect1
+            let allRespone = {};
+
+            Promise.all([
+                axios.get(`http://${ipBackEnd}:3001/get-data-tb`, { params }),
+                axios.get(`http://${ipBackEnd}:3001/get-describe-tb`, { params })
+            ])
+                .then(([dataResponse, describeResponse]) => {
+                    allRespone = {
+                        dataTB: dataResponse.data.data,
+                        describeTB: describeResponse.data.data
+                    };
+                    setInforTB1(allRespone);
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
                 });
-        } else if (idChose === "DB2") {
-            const data = {
-                nameDB: choseDB2,
-                nameTable: nameTable,
-                isASC: true,
-                limit: limit
-            }
 
-            setChoseTableOfDB2(nameTable)
-            axios.post(`http://${ipBackEnd}:3001/get-infor-a-table`, data)
-                .then(response => {
-                    setInforTable2(response.data.data)
+
+            inforSelect2.isASC = isASC
+            inforSelect2.limit = limit
+
+            params = inforSelect2
+
+            Promise.all([
+                axios.get(`http://${ipBackEnd}:3001/get-data-tb`, { params }),
+                axios.get(`http://${ipBackEnd}:3001/get-describe-tb`, { params })
+            ])
+                .then(([dataResponse, describeResponse]) => {
+                    allRespone = {
+                        dataTB: dataResponse.data.data,
+                        describeTB: describeResponse.data.data
+                    };
+                    setInforTB2(allRespone);
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
                 });
         }
+    }, [isASC, limit])
+
+
+
+    let setSelectTableDB = (nameDB, nameTB, id) => {
+        let data = {
+            nameDB: nameDB,
+            nameTB: nameTB,
+            isASC: isASC,
+            limit: limit
+        }
+
+        if (id === 'db1') {
+            setInforSelect1(data)
+
+        } else {
+            setInforSelect2(data)
+        }
     }
 
-    let handleOnChangeInput = (event) => {
-        // console.log("handle on change input")
-        const value = event.target.value
-        setLimit(Number(value));
-        if ((limit || limit === 0) && choseDB1 && choseTableOfDB1 && choseDB2 && choseTableOfDB2) {
-            let data1 = {
-                nameDB: choseDB1,
-                nameTable: choseTableOfDB1,
-                isASC: isASC,
-                limit: value
-            }
+    useEffect(() => {
+        if (inforSelect1) {
+            let params = inforSelect1;
+            let allRespone = {};
 
-            axios.post(`http://${ipBackEnd}:3001/get-infor-a-table`, data1)
-                .then(response => {
-                    // console.log("fetch data1: ", data1)
-                    setInforTable1(response.data.data)
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-
-
-            let data2 = {
-                nameDB: choseDB2,
-                nameTable: choseTableOfDB2,
-                isASC: isASC,
-                limit: value
-            }
-
-            axios.post(`http://${ipBackEnd}:3001/get-infor-a-table`, data2)
-                .then(response => {
-                    // console.log("fetch data2: ", data2)
-                    setInforTable2(response.data.data)
+            Promise.all([
+                axios.get(`http://${ipBackEnd}:3001/get-data-tb`, { params }),
+                axios.get(`http://${ipBackEnd}:3001/get-describe-tb`, { params })
+            ])
+                .then(([dataResponse, describeResponse]) => {
+                    allRespone = {
+                        dataTB: dataResponse.data.data,
+                        describeTB: describeResponse.data.data
+                    };
+                    setInforTB1(allRespone);
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
                 });
         }
-    }
+    }, [inforSelect1]);
+
+    useEffect(() => {
+        if (inforSelect2) {
+            let params = inforSelect2;
+            let allRespone = {};
+
+            Promise.all([
+                axios.get(`http://${ipBackEnd}:3001/get-data-tb`, { params }),
+                axios.get(`http://${ipBackEnd}:3001/get-describe-tb`, { params })
+            ])
+                .then(([dataResponse, describeResponse]) => {
+                    allRespone = {
+                        dataTB: dataResponse.data.data,
+                        describeTB: describeResponse.data.data
+                    };
+                    setInforTB2(allRespone);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+    }, [inforSelect2]);
 
     let totalRecordsTB1 = 0
     let totalRecordsTB2 = 0
@@ -239,80 +160,64 @@ function TestPage() {
     let aRandomRecordTB2
 
 
-    if (inforTable1 && inforTable1.dataTable) {
-        totalColumnTB1 = inforTable1.dataTable.reduce((total, user) => {
+    if (inforTB1 && inforTB1.dataTB) {
+        totalColumnTB1 = inforTB1.dataTB.reduce((total, user) => {
             return total + Number(user.age);
         }, 0);
-        totalRecordsTB1 = inforTable1.dataTable.length
-        aRandomRecordTB1 = inforTable1.dataTable[0]
+        totalRecordsTB1 = inforTB1.dataTB.length
+        aRandomRecordTB1 = inforTB1.dataTB[0]
     }
 
-    if (inforTable2 && inforTable2.dataTable) {
-        totalColumnTB2 = inforTable2.dataTable.reduce((total, user) => {
+    if (inforTB2 && inforTB2.dataTB) {
+        totalColumnTB2 = inforTB2.dataTB.reduce((total, user) => {
             return total + Number(user.age)
         }, 0)
-        totalRecordsTB2 = inforTable2.dataTable.length
-        aRandomRecordTB2 = inforTable2.dataTable[0]
+        totalRecordsTB2 = inforTB2.dataTB.length
+        aRandomRecordTB2 = inforTB2.dataTB[0]
     }
-
-
 
     return (
         <div className="container">
             <div className="header">Compare 2 tables</div>
             <div className="chuanghira container-select">
+
                 <div className="title title-select">Select Database</div>
                 <div className='option'>
                     <div className='button'>
-                        <button className={isASC ? 'active' : ''} onClick={toggleASC}>ASC</button>
-                        <button className={!isASC ? 'active' : ''} onClick={toggleDESC}>DESC</button>
+                        <button
+                            className={isASC ? 'active' : ''}
+                            onClick={toggleASCDESC}
+                        >ASC</button>
+                        <button
+                            className={!isASC ? 'active' : ''}
+                            onClick={toggleASCDESC}
+                        >DESC</button>
                     </div>
                     <div className='limit'>
-                        <label>Limit: </label>
-                        <input type="number" onChange={(event) => handleOnChangeInput(event)} value={limit} />
+                        <label>{`Limit (<=0) : `}</label>
+                        <input type="number"
+                            onChange={(event) => handleOnChangeLimit(event)} value={limit}
+                        />
                     </div>
-
                 </div>
                 <div className="content content-select">
                     <div className="select">
-                        <div className="database">
-                            <label htmlFor="db1">Select Database 1:</label>
-                            <select onChange={(event) => handleChoseDB(event, 'DB1')}>
-                                <option value="">Select an option</option>
-                                {allNameDB && allNameDB.map((nameDB, index) => {
-                                    return <option key={index}>{Object.values(nameDB)}</option>
-                                })}
-                            </select>
-                        </div>
-                        <div className="table">
-                            <label htmlFor="tb1">Select TB1:</label>
-                            <select onChange={(event) => handleChoseTableOfDB(event, "DB1")}>
-                                {allNameTableOfDB1 && <option value="">Select an option</option>}
-                                {allNameTableOfDB1 && allNameTableOfDB1.map((nameTable, index) => {
-                                    return <option key={index}>{Object.values(nameTable)}</option>
-                                })}
-                            </select>
-                        </div>
+                        <MenuSelectComponent id='db1' setSelectTableDB={setSelectTableDB}></MenuSelectComponent>
+                        {
+                            inforSelect1 &&
+                            <>
+                                <div className='name'>Table current: {inforSelect1.nameDB}.{inforSelect1.nameTB}</div>
+                            </>
+                        }
                     </div>
                     <div className="select">
-                        <div className="database">
-                            <label htmlFor="db2">Select DB2:</label>
-                            <select onChange={(event) => handleChoseDB(event, 'DB2')}>
-                                <option value="">Select an option</option>
-                                {allNameDB && allNameDB.map((nameDB, index) => {
-                                    return <option key={index}>{Object.values(nameDB)}</option>
-                                })}
-                            </select>
-                        </div>
-                        <div className="table">
-                            <label htmlFor="tb2">Select TB2:</label>
-                            <select onChange={(event) => handleChoseTableOfDB(event, "DB2")}>
-                                {allNameTableOfDB2 && <option value="">Select an option</option>}
-                                {allNameTableOfDB2 && allNameTableOfDB2.map((nameTable, index) => {
-                                    return <option key={index}>{Object.values(nameTable)}</option>
-                                })}
-                            </select>
-                        </div>
+                        <MenuSelectComponent id='db2' setSelectTableDB={setSelectTableDB}></MenuSelectComponent>
+                        {
+                            inforSelect2 &&
+                            <>
+                                <div className='name'>Table current: {inforSelect2.nameDB}.{inforSelect2.nameTB}</div>
+                            </>
+                        }
                     </div>
                 </div>
 
@@ -327,16 +232,18 @@ function TestPage() {
                                 isShowData &&
                                 <div className='data'>
                                     <div className='table'>
-                                        {inforTable1 &&
+                                        {
+                                            inforTB1 &&
                                             <div className="custom-data-grid">
-                                                <Table inforTable={inforTable1}></Table>
+                                                <TableCompare data={inforTB1.dataTB} compareData={inforTB2?.dataTB || 0}></TableCompare>
                                             </div>
                                         }
                                     </div>
                                     <div className='table'>
-                                        {inforTable2 &&
+                                        {
+                                            inforTB2 &&
                                             <div className="custom-data-grid">
-                                                <Table inforTable={inforTable2}></Table>
+                                                <TableCompare data={inforTB2.dataTB} compareData={inforTB1?.dataTB || 0}></TableCompare>
                                             </div>
                                         }
                                     </div>
@@ -349,19 +256,19 @@ function TestPage() {
                                 isShowDescribe &&
                                 <div className='describe'>
                                     <div className='table'>
-                                        {/* {inforTable1 &&
-                                        <Table data={inforTable1.describeTable}></Table>
-                                    } */}
-                                        {inforTable1 && inforTable2 &&
-                                            <TableCompare data1={inforTable1.describeTable} data2={inforTable2.describeTable} ></TableCompare>
+                                        {
+                                            inforTB1 &&
+                                            <div className="custom-data-grid">
+                                                <TableCompare data={inforTB1?.describeTB} compareData={inforTB2?.describeTB || 0} ></TableCompare>
+                                            </div>
                                         }
                                     </div>
                                     <div className='table'>
-                                        {/* {inforTable2 &&
-                                        <Table data={inforTable2.describeTable}></Table>
-                                    } */}
-                                        {inforTable1 && inforTable2 &&
-                                            <TableCompare data1={inforTable2.describeTable} data2={inforTable1.describeTable} ></TableCompare>
+                                        {
+                                            inforTB2 &&
+                                            < div className="custom-data-grid">
+                                                <TableCompare data={inforTB2.describeTB} compareData={inforTB1?.describeTB || 0}></TableCompare>
+                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -406,7 +313,7 @@ function TestPage() {
                     </table>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 

@@ -4,7 +4,7 @@ import { Menu } from 'antd';
 import axios from 'axios';
 import './style.css'; // Import CSS file for custom styling
 
-const MenuComponent = ({ id, setSelectTableDB }) => {
+const MenuSelectComponent = ({ id, setSelectTableDB }) => {
 
     const [databaseItems, setDatabaseItems] = useState([]);
     const [loadingTables, setLoadingTables] = useState({}); // Track loading state for tables
@@ -51,12 +51,16 @@ const MenuComponent = ({ id, setSelectTableDB }) => {
             return;
         }
 
+        let params = {
+            nameDB: dbName
+        }
+
         setLoadingTables(prevState => ({
             ...prevState,
             [dbKey]: true
         }));
 
-        axios.post('http://localhost:3001/get-all-name-table-of-db', { nameDB: dbName })
+        axios.get('http://localhost:3001/get-all-name-tb-of-db', { params })
             .then(response => {
                 const tables = response.data.data;
                 // console.log(`Tables of ${dbName}:`, tables); // Log danh sách các bảng
@@ -139,4 +143,4 @@ const MenuComponent = ({ id, setSelectTableDB }) => {
     );
 };
 
-export default MenuComponent;
+export default MenuSelectComponent;

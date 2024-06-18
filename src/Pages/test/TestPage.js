@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import './styles.scss'; // Đảm bảo rằng file styles.css của bạn đã được import
-import Table from '../../Component/Table/Table';
-import MenuComponent from '../../Component/Menu/MenuComponent';
+import './styles.scss';
+import MenuSelectComponent from '../../Component/Menu/MenuSelectComponent';
+import TableCompare from '../../Component/TableCompare/TableCompare';
 
 function TestPage() {
 
     let ipBackEnd = 'localhost'
 
-    const [inforTable1, setInforTable1] = useState()
-    const [inforTable2, setInforTable2] = useState()
+    const [inforTB1, setInforTB1] = useState()
+    const [inforTB2, setInforTB2] = useState()
 
     const [isShowData, setIsShowData] = useState(true)
     const [isShowDescribe, setIsShowDescribe] = useState(true)
@@ -18,48 +18,138 @@ function TestPage() {
     const [inforSelect1, setInforSelect1] = useState()
     const [inforSelect2, setInforSelect2] = useState()
 
-    // const dataWithIds = data.map((item, index) => ({ ...item, id: index + 1 }));
+    const [isASC, setIsASC] = useState(true)
+    const [limit, setLimit] = useState(10)
 
-
-    const toggleDisplay = (nameTable) => {
-        if (nameTable === 'data') {
+    const toggleDisplay = (nameTB) => {
+        if (nameTB === 'data') {
             setIsShowData(!isShowData)
         }
 
-        if (nameTable === 'describe') {
+        if (nameTB === 'describe') {
             setIsShowDescribe(!isShowDescribe)
         }
     };
 
-    let setSelectTableDB = (dbName, tbName, id) => {
+    const toggleASCDESC = () => {
+        setIsASC(!isASC)
+    }
+
+    const handleOnChangeLimit = (event) => {
+        let value = event.target.value
+        if (0 <= value) {
+            setLimit(value)
+        }
+    }
+
+    useEffect(() => {
+        if ((limit || limit === 0) && inforSelect1 && inforSelect2) {
+
+            inforSelect1.isASC = isASC
+            inforSelect1.limit = limit
+
+            let params = inforSelect1
+            let allRespone = {};
+
+            Promise.all([
+                axios.get(`http://${ipBackEnd}:3001/get-data-tb`, { params }),
+                axios.get(`http://${ipBackEnd}:3001/get-describe-tb`, { params })
+            ])
+                .then(([dataResponse, describeResponse]) => {
+                    allRespone = {
+                        dataTB: dataResponse.data.data,
+                        describeTB: describeResponse.data.data
+                    };
+                    setInforTB1(allRespone);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+
+
+            inforSelect2.isASC = isASC
+            inforSelect2.limit = limit
+
+            params = inforSelect2
+
+            Promise.all([
+                axios.get(`http://${ipBackEnd}:3001/get-data-tb`, { params }),
+                axios.get(`http://${ipBackEnd}:3001/get-describe-tb`, { params })
+            ])
+                .then(([dataResponse, describeResponse]) => {
+                    allRespone = {
+                        dataTB: dataResponse.data.data,
+                        describeTB: describeResponse.data.data
+                    };
+                    setInforTB2(allRespone);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+    }, [isASC, limit])
+
+
+
+    let setSelectTableDB = (nameDB, nameTB, id) => {
         let data = {
-            nameDB: dbName,
-            nameTable: tbName
+            nameDB: nameDB,
+            nameTB: nameTB,
+            isASC: isASC,
+            limit: limit
         }
 
         if (id === 'db1') {
             setInforSelect1(data)
-            axios.post(`http://${ipBackEnd}:3001/get-infor-a-table`, data)
-                .then(response => {
-                    setInforTable1(response.data.data)
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
+
         } else {
             setInforSelect2(data)
-            axios.post(`http://${ipBackEnd}:3001/get-infor-a-table`, data)
-                .then(response => {
-                    setInforTable2(response.data.data)
+        }
+    }
+
+    useEffect(() => {
+        if (inforSelect1) {
+            let params = inforSelect1;
+            let allRespone = {};
+
+            Promise.all([
+                axios.get(`http://${ipBackEnd}:3001/get-data-tb`, { params }),
+                axios.get(`http://${ipBackEnd}:3001/get-describe-tb`, { params })
+            ])
+                .then(([dataResponse, describeResponse]) => {
+                    allRespone = {
+                        dataTB: dataResponse.data.data,
+                        describeTB: describeResponse.data.data
+                    };
+                    setInforTB1(allRespone);
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error);
                 });
         }
+    }, [inforSelect1]);
 
+    useEffect(() => {
+        if (inforSelect2) {
+            let params = inforSelect2;
+            let allRespone = {};
 
-    }
-
+            Promise.all([
+                axios.get(`http://${ipBackEnd}:3001/get-data-tb`, { params }),
+                axios.get(`http://${ipBackEnd}:3001/get-describe-tb`, { params })
+            ])
+                .then(([dataResponse, describeResponse]) => {
+                    allRespone = {
+                        dataTB: dataResponse.data.data,
+                        describeTB: describeResponse.data.data
+                    };
+                    setInforTB2(allRespone);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+    }, [inforSelect2]);
 
     let totalRecordsTB1 = 0
     let totalRecordsTB2 = 0
@@ -70,20 +160,20 @@ function TestPage() {
     let aRandomRecordTB2
 
 
-    if (inforTable1 && inforTable1.dataTable) {
-        totalColumnTB1 = inforTable1.dataTable.reduce((total, user) => {
+    if (inforTB1 && inforTB1.dataTB) {
+        totalColumnTB1 = inforTB1.dataTB.reduce((total, user) => {
             return total + Number(user.age);
         }, 0);
-        totalRecordsTB1 = inforTable1.dataTable.length
-        aRandomRecordTB1 = inforTable1.dataTable[0]
+        totalRecordsTB1 = inforTB1.dataTB.length
+        aRandomRecordTB1 = inforTB1.dataTB[0]
     }
 
-    if (inforTable2 && inforTable2.dataTable) {
-        totalColumnTB2 = inforTable2.dataTable.reduce((total, user) => {
+    if (inforTB2 && inforTB2.dataTB) {
+        totalColumnTB2 = inforTB2.dataTB.reduce((total, user) => {
             return total + Number(user.age)
         }, 0)
-        totalRecordsTB2 = inforTable2.dataTable.length
-        aRandomRecordTB2 = inforTable2.dataTable[0]
+        totalRecordsTB2 = inforTB2.dataTB.length
+        aRandomRecordTB2 = inforTB2.dataTB[0]
     }
 
     return (
@@ -95,37 +185,37 @@ function TestPage() {
                 <div className='option'>
                     <div className='button'>
                         <button
-                        // className={isASC ? 'active' : ''}
-                        // onClick={toggleASC}
+                            className={isASC ? 'active' : ''}
+                            onClick={toggleASCDESC}
                         >ASC</button>
                         <button
-                        // className={!isASC ? 'active' : ''}
-                        // onClick={toggleDESC}
+                            className={!isASC ? 'active' : ''}
+                            onClick={toggleASCDESC}
                         >DESC</button>
                     </div>
                     <div className='limit'>
-                        <label>Limit: </label>
+                        <label>{`Limit (<=0) : `}</label>
                         <input type="number"
-                        // onChange={(event) => handleOnChangeInput(event)} value={limit}
+                            onChange={(event) => handleOnChangeLimit(event)} value={limit}
                         />
                     </div>
                 </div>
                 <div className="content content-select">
                     <div className="select">
-                        <MenuComponent id='db1' setSelectTableDB={setSelectTableDB}></MenuComponent>
+                        <MenuSelectComponent id='db1' setSelectTableDB={setSelectTableDB}></MenuSelectComponent>
                         {
                             inforSelect1 &&
                             <>
-                                <div className='name'>Table curent: {inforSelect1.nameDB}.{inforSelect1.nameTable}</div>
+                                <div className='name'>Table current: {inforSelect1.nameDB}.{inforSelect1.nameTB}</div>
                             </>
                         }
                     </div>
                     <div className="select">
-                        <MenuComponent id='db2' setSelectTableDB={setSelectTableDB}></MenuComponent>
+                        <MenuSelectComponent id='db2' setSelectTableDB={setSelectTableDB}></MenuSelectComponent>
                         {
                             inforSelect2 &&
                             <>
-                                <div className='name'>Table curent: {inforSelect2.nameDB}.{inforSelect2.nameTable}</div>
+                                <div className='name'>Table current: {inforSelect2.nameDB}.{inforSelect2.nameTB}</div>
                             </>
                         }
                     </div>
@@ -143,17 +233,17 @@ function TestPage() {
                                 <div className='data'>
                                     <div className='table'>
                                         {
-                                            inforTable1 &&
+                                            inforTB1 &&
                                             <div className="custom-data-grid">
-                                                <Table data={inforTable1.dataTable} compareData={inforTable2?.dataTable || 0}></Table>
+                                                <TableCompare data={inforTB1.dataTB} compareData={inforTB2?.dataTB || 0}></TableCompare>
                                             </div>
                                         }
                                     </div>
                                     <div className='table'>
                                         {
-                                            inforTable2 &&
+                                            inforTB2 &&
                                             <div className="custom-data-grid">
-                                                <Table data={inforTable2.dataTable} compareData={inforTable1?.dataTable || 0}></Table>
+                                                <TableCompare data={inforTB2.dataTB} compareData={inforTB1?.dataTB || 0}></TableCompare>
                                             </div>
                                         }
                                     </div>
@@ -167,17 +257,17 @@ function TestPage() {
                                 <div className='describe'>
                                     <div className='table'>
                                         {
-                                            inforTable1 &&
+                                            inforTB1 &&
                                             <div className="custom-data-grid">
-                                                <Table data={inforTable1?.describeTable} compareData={inforTable2?.describeTable || 0} ></Table>
+                                                <TableCompare data={inforTB1?.describeTB} compareData={inforTB2?.describeTB || 0} ></TableCompare>
                                             </div>
                                         }
                                     </div>
                                     <div className='table'>
                                         {
-                                            inforTable2 &&
+                                            inforTB2 &&
                                             < div className="custom-data-grid">
-                                                <Table data={inforTable2.describeTable} compareData={inforTable1?.describeTable || 0}></Table>
+                                                <TableCompare data={inforTB2.describeTB} compareData={inforTB1?.describeTB || 0}></TableCompare>
                                             </div>
                                         }
                                     </div>
